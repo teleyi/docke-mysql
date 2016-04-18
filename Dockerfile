@@ -7,10 +7,9 @@ RUN mkdir /docker-entrypoint-initdb.d /docker-entrypoint-updatedb.d
 
 # Debian mirror in China
 RUN { \
-		echo "deb http://mirrors.163.com/debian/ jessie main"; \
-		echo "deb http://mirrors.163.com/debian/ jessie-updates main"; \
-		echo "deb http://mirrors.163.com/debian-security/ jessie/updates main"; \
-	} > /etc/apt/sources.list
+                echo "deb http://ftp.cn.debian.org/debian/ jessie main"; \
+                echo "deb http://ftp.cn.debian.org/debian/ jessie-updates main"; \
+        } > /etc/apt/sources.list
 
 # FATAL ERROR: please install the following Perl modules before executing /usr/local/mysql/scripts/mysql_install_db:
 # File::Basename
