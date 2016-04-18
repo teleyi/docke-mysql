@@ -49,5 +49,6 @@ VOLUME /var/lib/mysql
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-EXPOSE 3306
+# mysqld serves at 3306, while a netcat program serves at 13306 to accept SQL commands (see docker-entrypoint.sh)
+EXPOSE 3306 13306
 CMD ["mysqld"]

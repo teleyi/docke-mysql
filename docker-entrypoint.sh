@@ -101,10 +101,43 @@ function start_mysqld {
 		echo
 	fi
 
-	mysqld $@
+	mysqld $@ &
+
+	mysql=( mysql -uroot )
+	if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
+		mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
+	fi
+
+	for i in {30..0}; do
+		if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
+			break
+		fi
+		echo 'MySQL init process in progress...'
+		sleep 1
+	done
+	if [ "$i" = 0 ]; then
+		echo >&2 'MySQL init process failed.'
+		exit 1
+	fi
+
+	echo
+	for f in /docker-entrypoint-updatedb.d/*; do
+		case "$f" in
+			*.sh)     echo "$0: running $f"; . "$f" ;;
+			*.sql)    echo "$0: running $f"; "${mysql[@]}" < "$f"; echo ;;
+			*.sql.gz) echo "$0: running $f"; gunzip -c "$f" | "${mysql[@]}"; echo ;;
+			*)        echo "$0: ignoring $f" ;;
+		esac
+		echo
+	done
+
+	while true; do
+		echo "netcat: ready for connection"
+		nc -l -p 13306 -c "xargs -n1 echo"
+	done
 }
 
 case $1 in
-	mysqld ) shift; start_mysqld $@ ;;
-	*      ) shift; exec $@         ;;
+	mysqld) shift; start_mysqld  $@  ;;
+	*)             exec         "$@" ;;
 esac
