@@ -1,5 +1,10 @@
 FROM debian:jessie
 
+# Set timezone to Asia/Shanghai
+RUN set -e \
+        && echo "Asia/Shanghai" > /etc/timezone \
+        && dpkg-reconfigure -f noninteractive tzdata
+
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mysql && useradd -r -g mysql mysql
 
