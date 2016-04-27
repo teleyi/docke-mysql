@@ -16,7 +16,7 @@ function start_mysqld {
 		chown -R mysql:mysql "$DATADIR"
 
 		echo 'Initializing database'
-		mysqld --initialize-insecure
+		mysql_install_db --user=mysql --datadir="$DATADIR"
 		echo 'Database initialized'
 
 		mysqld --skip-networking &
@@ -49,7 +49,7 @@ function start_mysqld {
 			-- What's done in this file shouldn't be replicated
 			--  or products like mysql-fabric won't work
 			SET @@SESSION.SQL_LOG_BIN=0;
-			DELETE FROM mysql.user ;
+			DELETE FROM mysql.user where User = 'root';
 			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
 			GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
 			DROP DATABASE IF EXISTS test ;
@@ -87,9 +87,9 @@ function start_mysqld {
 		done
 
 		if [ ! -z "$MYSQL_ONETIME_PASSWORD" ]; then
-			"${mysql[@]}" <<-EOSQL
-				ALTER USER 'root'@'%' PASSWORD EXPIRE;
-			EOSQL
+			echo >&2
+			echo >&2 'Sorry, this version of MySQL does not support "PASSWORD EXPIRE" (required for MYSQL_ONETIME_PASSWORD).'
+			echo >&2
 		fi
 		if ! kill -s TERM "$pid" || ! wait "$pid"; then
 			echo >&2 'MySQL init process failed.'
@@ -100,6 +100,8 @@ function start_mysqld {
 		echo 'MySQL init process done. Ready for start up.'
 		echo
 	fi
+
+	chown -R mysql:mysql "$DATADIR"
 
 	mysqld $@ &
 
