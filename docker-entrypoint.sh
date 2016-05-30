@@ -2,9 +2,13 @@
 set -eo pipefail
 
 function start_mysqld {
-	# Get config
-	DATADIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
+	LOGDIR="$(dirname $(mysqld --verbose --help 2>/dev/null | awk '$1 == "log-bin" { print $2; exit }'))"
+	if [ ! -d "$LOGDIR" ]; then
+		mkdir -p "$LOGDIR"
+	fi
+	chown -R mysql:mysql "$LOGDIR"
 
+	DATADIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 	if [ ! -d "$DATADIR/mysql" ]; then
 		if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and password option is not specified '

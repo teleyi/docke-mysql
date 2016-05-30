@@ -34,7 +34,7 @@ RUN set -e \
 		echo "datadir = /var/lib/mysql"; \
 	} > /etc/mysql/conf.d/docker.cnf
 
-VOLUME ["/var/lib/mysql", "/docker-entrypoint-initdb.d", "/docker-entrypoint-updatedb.d"]
+VOLUME ["/var/lib/mysql", "/var/log/mysql", "/docker-entrypoint-initdb.d", "/docker-entrypoint-updatedb.d"]
 
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
