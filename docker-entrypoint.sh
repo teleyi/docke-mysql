@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -e
 
 function start_mysqld {
 	LOGDIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "log-bin" { print $2; exit }')"
