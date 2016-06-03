@@ -29,9 +29,12 @@ RUN set -e \
 	&& sed -Ei 's/^bind-address/#&/' /etc/mysql/my.cnf \
 	&& { \
 		echo "[mysqld]"; \
+		echo "server-id = 1"; \
 		echo "skip-name-resolve"; \
 		echo "skip-host-cache"; \
 		echo "datadir = /var/lib/mysql"; \
+		echo "log-bin = /var/log/mysql/mysql-bin"; \
+		echo "binlog_format = ROW"; \
 	} > /etc/mysql/conf.d/docker.cnf
 
 VOLUME ["/var/lib/mysql", "/var/log/mysql", "/docker-entrypoint-initdb.d", "/docker-entrypoint-updatedb.d"]

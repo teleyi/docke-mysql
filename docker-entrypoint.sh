@@ -2,15 +2,11 @@
 set -e
 
 function start_mysqld {
-	LOGDIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "log-bin" { print $2; exit }')"
-	# Not (No default value)
-	if [ "$LOGDIR" != "(No" ]; then
-		LOGDIR="$(dirname $LOGDIR)"
-		if [ ! -d "$LOGDIR" ]; then
-			mkdir -p "$LOGDIR"
-		fi
-		chown -R mysql:mysql "$LOGDIR"
+	LOGDIR="$(dirname $(mysqld --verbose --help 2>/dev/null | awk '$1 == "log-bin" { print $2; exit }'))"
+	if [ ! -d "$LOGDIR" ]; then
+		mkdir -p "$LOGDIR"
 	fi
+	chown -R mysql:mysql "$LOGDIR"
 
 	DATADIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 	if [ ! -d "$DATADIR/mysql" ]; then
